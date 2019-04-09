@@ -1,0 +1,45 @@
+version: '3.5'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: "db-demochat"
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_PASSWORD: ${MYSQL_PASS}
+
+  php-fpm:
+    build:
+      context: ./docker/containers/php7-fpm
+    container_name: "php-demochat"
+    volumes:
+      - ./api/:/var/www/project/demochat:cached
+    expose:
+      - "9000"
+
+  mercure:
+    build:
+      context: ./docker/containers/mercure
+    container_name: "mercure-demochat"
+    ports:
+      - "3000:3000"
+
+  api:
+    build:
+      context: ./docker/containers/api
+    container_name: "api-demochat"
+    volumes:
+      - ./api/:/var/www/project/demochat:cached
+    ports:
+      - "80:80"
+
+  front:
+    build:
+      context: ./
+      dockerfile: ./docker/containers/front/Dockerfile
+    container_name: "front-demochat"
+    ports:
+      - "8080:8080"
